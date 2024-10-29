@@ -2,10 +2,15 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Type
 
-
 # Define the request handler class by extending BaseHTTPRequestHandler.
 # This class will handle HTTP requests that the server receives.
 class SimpleRequestHandler(BaseHTTPRequestHandler):
+
+    users = [{
+        "firstName": "John",
+        "lastName": "Smith",
+        "role": "Manager"
+    }]
 
     # Handle OPTIONS requests (used in CORS preflight checks).
     # CORS (Cross-Origin Resource Sharing) is a mechanism that allows restricted resources
@@ -32,26 +37,17 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         # Set the HTTP response status to 200 OK, which means the request was successful.
         self.send_response(200)
-
         # Set the Content-Type header to application/json, meaning the response will be in JSON format.
         self.send_header('Content-type', 'application/json')
-
         # Allow any domain to make requests to this server (CORS header).
         self.send_header('Access-Control-Allow-Origin', '*')
-
         # Finish sending headers
         self.end_headers()
-
-        # Prepare the response data, which will be returned in JSON format.
-        # The response contains a simple message and the path of the request.
-        response: dict = {
-            "message": "This is a GET request",
-            "path": self.path
-        }
-
-        # Convert the response dictionary to a JSON string and send it back to the client.
+        # Convert the users list to a JSON string and send it back to the client.
         # `self.wfile.write()` is used to send the response body.
-        self.wfile.write(json.dumps(response).encode())
+        self.wfile.write(json.dumps(self.users).encode())
+        
+        
 
     # Handle POST requests.
     # This method is called when the client sends a POST request.
@@ -59,35 +55,57 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         # Retrieve the content length from the request headers.
         # This tells us how much data to read from the request body.
         content_length: int = int(self.headers['Content-Length'])
-
         # Read the request body based on the content length.
         post_data: bytes = self.rfile.read(content_length)
-
         # Decode the received byte data and parse it as JSON.
         # We expect the POST request body to contain JSON-formatted data.
         received_data: dict = json.loads(post_data.decode())
+        
 
-        # Prepare the response data.
-        # It includes a message indicating it's a POST request and the data we received from the client.
-        response: dict = {
-            "message": "This is a POST request",
-            "received": received_data
+        self.users.append(received_data)
+
+        resposne: dict = {
+            "message": "User added successfully",
+            "updated_list": self.users
         }
 
         # Send the response headers.
         # Set the status to 200 OK and indicate the response content will be in JSON format.
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
-
         # Again, allow any origin to access this resource (CORS header).
         self.send_header('Access-Control-Allow-Origin', '*')
-
         # Finish sending headers.
         self.end_headers()
+        # Convert the users dictionary to a JSON string and send it back to the client.
+        self.wfile.write(json.dumps(resposne).encode())
+        
 
-        # Convert the response dictionary to a JSON string and send it back to the client.
+    def do_DELETE(self):
+        try:
+            #Extract item index
+            item_index = int(self.path.split("/")[-1])
+            #remove item from list
+            deleted_item = self.users.pop(item_index)
+
+            # send response with updated list
+            response = {
+                "message": f"User deleted successfully. Index: {item_index}",
+                "deleted_item": deleted_item,
+                "updated_list": self.users
+            }
+            self.send_response(200)
+        except (IndexError, ValueError):
+            response = {
+                "message": "Invalid index. Deletion failed.",
+                "courent_list": self.users
+            }
+            self.send_response(400)
+
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
         self.wfile.write(json.dumps(response).encode())
-
 
 # Function to start the server.
 # It takes parameters to specify the server class, handler class, and port number.
@@ -109,7 +127,6 @@ def run(
     # Start the server and make it continuously listen for requests.
     # This method will block the program and keep running until interrupted.
     httpd.serve_forever()
-
 
 # If this script is executed directly (not imported as a module), this block runs.
 # It calls the `run()` function to start the server.
