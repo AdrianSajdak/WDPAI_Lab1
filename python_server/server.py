@@ -2,18 +2,36 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Type
 
+import psycopg2
+import os
+import time
+
+DB_HOST = os.environ.get('DB_HOST', 'postgres')
+DB_PORT = int(os.environ.get('DB_PORT', 5432))
+DB_NAME = os.environ.get('DB_NAME', 'mydatabase')
+DB_USER = os.environ.get('DB_USER', 'myuser')
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'mypassword')
+
+def connect_to_db():
+    while True:
+        try:
+            conn = psycopg2.connect(
+                host=DB_HOST,
+                port=DB_PORT,
+                dbname=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
+            )
+            print("Połączono z bazą danych")
+            return conn
+        except psycopg2.OperationalError:
+            print("Błąd połączenia z bazą danych, ponawianie za 5 sekund...")
+            time.sleep(5)
+
+
 # Define the request handler class by extending BaseHTTPRequestHandler.
 # This class will handle HTTP requests that the server receives.
-class SimpleRequestHandler(BaseHTTPRequestHandler):    
-    users = [{
-        "id": 1,
-        "firstName": "John",
-        "lastName": "Smith",
-        "role": "Manager"
-    }]
-
-    next_id = 2
-
+class SimpleRequestHandler(BaseHTTPRequestHandler):
     # Handle OPTIONS requests (used in CORS preflight checks).
     # CORS (Cross-Origin Resource Sharing) is a mechanism that allows restricted resources
     # on a web page to be requested from another domain outside the domain from which the resource originated.
@@ -37,6 +55,27 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
     # Handle GET requests.
     # When the client sends a GET request, this method will be called.
     def do_GET(self) -> None:
+        try:
+            conn = connect_to_db()
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id, first_name, last_name, role FROM users ORDER BY id")
+                rows = cursor.fetchall()
+                users = [
+                    {"id": row[0], "first_name": row[1], "last_name": row[2], "role": row[3]}
+                    for row in rows
+                ]
+            conn.close()
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            response = {
+                'error': str(e)
+            }
+            self.wfile.write(json.dumps(response).encode())
+            return
+
         # Set the HTTP response status to 200 OK, which means the request was successful.
         self.send_response(200)
         # Set the Content-Type header to application/json, meaning the response will be in JSON format.
@@ -47,7 +86,7 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         # Convert the users list to a JSON string and send it back to the client.
         # `self.wfile.write()` is used to send the response body.
-        self.wfile.write(json.dumps(self.users).encode())
+        self.wfile.write(json.dumps(users).encode())
         
         
 
@@ -63,58 +102,86 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         # We expect the POST request body to contain JSON-formatted data.
         received_data: dict = json.loads(post_data.decode())
         
-        received_data["id"] = self.__class__.user_id
-        self.__class__.user_id = self.__class__.user_id + 1
+        try:
+            conn = connect_to_db()
+            with conn.cursor() as cursor:
+                query = "INSERT INTO users (first_name, last_name, role) VALUES (%s, %s, %s) RETURNING id"
+                cursor.execute(query, (
+                    received_data['first_name'],
+                    received_data['last_name'],
+                    received_data['role']
+                ))
+                new_id = cursor.fetchone()[0]
+                conn.commit()
+            conn.close()
 
-        self.users.append(received_data)
+            resposne: dict = {
+                "message": "User added successfully",
+                "user": {
+                    "id": new_id,
+                    "first_name": received_data['first_name'],
+                    "last_name": received_data['last_name'],
+                    "role": received_data['role']
+                }
+            }
 
-        resposne: dict = {
-            "message": "User added successfully",
-            "updated_list": self.users
-        }
-
-        # Send the response headers.
-        # Set the status to 200 OK and indicate the response content will be in JSON format.
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        # Again, allow any origin to access this resource (CORS header).
-        self.send_header('Access-Control-Allow-Origin', '*')
-        # Finish sending headers.
-        self.end_headers()
-        # Convert the users dictionary to a JSON string and send it back to the client.
-        self.wfile.write(json.dumps(resposne).encode())
+            # Send the response headers.
+            # Set the status to 200 OK and indicate the response content will be in JSON format.
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            # Again, allow any origin to access this resource (CORS header).
+            self.send_header('Access-Control-Allow-Origin', '*')
+            # Finish sending headers.
+            self.end_headers()
+            # Convert the users dictionary to a JSON string and send it back to the client.
+            self.wfile.write(json.dumps(resposne).encode())
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            response = {
+                'error': str(e)
+            }
+            self.wfile.write(json.dumps(response).encode())
         
 
     def do_DELETE(self):
         try:
             #Extract item id from URL
             user_id = int(self.path.split("/")[-1])
-            #Select item to delete
-            user_to_delete = next((user for user in self.users if user['id'] == user_id), None)
-
-            if user_to_delete:
-                self.users.remove(user_to_delete)
-
-                # send response with updated list
-                response = {
-                    "message": f"User deleted successfully. User Id: {user_id}",
-                    "deleted_item": user_to_delete,
-                    "updated_list": self.users
-                }
-                self.send_response(200)
-            else:
-                response = {
-                    "message": f"User with id {user_id} not found.",
-                    "courent_list": self.users
-                }
-                self.send_response(404)
-                
-        except (IndexError, ValueError):
+            
+            conn = connect_to_db()
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM users WHERE id = %s RETURNING id, first_name, last_name, role", (user_id,))
+                deleted_user = cursor.fetchone()
+                if deleted_user:
+                    conn.commit()
+                    # send response with updated list
+                    response = {
+                        "message": f"User deleted successfully. User Id: {user_id}",
+                        'deleted_item': {
+                            'id': deleted_user[0],
+                            'first_name': deleted_user[1],
+                            'last_name': deleted_user[2],
+                            'role': deleted_user[3]
+                        }
+                    }
+                    self.send_response(200)
+                else: 
+                    response = {
+                        'message': f'User with ID {user_id} not found.'
+                    }
+                    self.send_response(404)
+            conn.close()
+        except (ValueError, IndexError):
             response = {
-                "message": "Invalid user_id. Deletion failed.",
-                "courent_list": self.users
+                'message': 'Invalid user ID. Deletion failed.'
             }
             self.send_response(400)
+        except Exception as e:
+            response = {'error': str(e)}
+            self.send_response(500)
 
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')

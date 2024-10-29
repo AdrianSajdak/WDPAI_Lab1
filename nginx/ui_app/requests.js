@@ -3,10 +3,9 @@
 // Function to send POST request
 async function sendPostRequest(event) {
     event.preventDefault(); // Zapobiega przeładowaniu strony
-
     // Pobieranie danych z formularza
-    const firstName = document.getElementById("first-name").value;
-    const lastName = document.getElementById("last-name").value;
+    const first_name = document.getElementById("first-name").value;
+    const last_name = document.getElementById("last-name").value;
     const role = document.getElementById("role").value;
     const agree = document.getElementById("agree").checked;
 
@@ -17,8 +16,8 @@ async function sendPostRequest(event) {
     }
 
     const data = {
-        firstName: firstName,
-        lastName: lastName,
+        first_name: first_name,
+        last_name: last_name,
         role: role
     };
 
@@ -32,7 +31,7 @@ async function sendPostRequest(event) {
         });
         const responseData = await response.json();
 
-        document.getElementById("postResponse").textContent = JSON.stringify(responseData, null, 2);
+        // document.getElementById("postResponse").textContent = JSON.stringify(responseData, null, 2);
         // refresh the list after adding an user
         fetchUsers();
 
@@ -49,7 +48,7 @@ async function deleteUser(id) {
             method: 'DELETE'
         });
         const responseData = await response.json();
-        document.getElementById("deleteResponse").textContent = JSON.stringify(responseData, null, 2);
+        // document.getElementById("deleteResponse").textContent = JSON.stringify(responseData, null, 2);
 
         fetchUsers();
     }
@@ -63,6 +62,8 @@ async function fetchUsers() {
     try {
         const response = await fetch(url);
         const data = await response.json();
+        console.log("Fetched user data:", data);
+
         displayUsers(data);
     } catch (error) {
         console.error('Error:', error);
@@ -79,7 +80,7 @@ function displayUsers(users) {
         // Tworzymy element <span> dla informacji o użytkowniku
         const userInfo = document.createElement('span');
         userInfo.classList.add('user-info');
-        userInfo.textContent = `${user.firstName} ${user.lastName} - ${user.role}`;
+        userInfo.textContent = `${user.first_name} ${user.last_name} - ${user.role}`;
 
         // Tworzymy przycisk usuwania
         const deleteButton = document.createElement('button');
