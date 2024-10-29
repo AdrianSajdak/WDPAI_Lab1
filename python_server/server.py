@@ -4,13 +4,15 @@ from typing import Type
 
 # Define the request handler class by extending BaseHTTPRequestHandler.
 # This class will handle HTTP requests that the server receives.
-class SimpleRequestHandler(BaseHTTPRequestHandler):
-
+class SimpleRequestHandler(BaseHTTPRequestHandler):    
     users = [{
+        "id": 1,
         "firstName": "John",
         "lastName": "Smith",
         "role": "Manager"
     }]
+
+    next_id = 2
 
     # Handle OPTIONS requests (used in CORS preflight checks).
     # CORS (Cross-Origin Resource Sharing) is a mechanism that allows restricted resources
@@ -61,6 +63,8 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         # We expect the POST request body to contain JSON-formatted data.
         received_data: dict = json.loads(post_data.decode())
         
+        received_data["id"] = self.__class__.user_id
+        self.__class__.user_id = self.__class__.user_id + 1
 
         self.users.append(received_data)
 
@@ -83,21 +87,31 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         try:
-            #Extract item index
-            item_index = int(self.path.split("/")[-1])
-            #remove item from list
-            deleted_item = self.users.pop(item_index)
+            #Extract item id from URL
+            user_id = int(self.path.split("/")[-1])
+            #Select item to delete
+            user_to_delete = next((user for user in self.users if user['id'] == user_id), None)
 
-            # send response with updated list
-            response = {
-                "message": f"User deleted successfully. Index: {item_index}",
-                "deleted_item": deleted_item,
-                "updated_list": self.users
-            }
-            self.send_response(200)
+            if user_to_delete:
+                self.users.remove(user_to_delete)
+
+                # send response with updated list
+                response = {
+                    "message": f"User deleted successfully. User Id: {user_id}",
+                    "deleted_item": user_to_delete,
+                    "updated_list": self.users
+                }
+                self.send_response(200)
+            else:
+                response = {
+                    "message": f"User with id {user_id} not found.",
+                    "courent_list": self.users
+                }
+                self.send_response(404)
+                
         except (IndexError, ValueError):
             response = {
-                "message": "Invalid index. Deletion failed.",
+                "message": "Invalid user_id. Deletion failed.",
                 "courent_list": self.users
             }
             self.send_response(400)

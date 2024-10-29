@@ -41,8 +41,8 @@ async function sendPostRequest(event) {
     }
 }
 
-async function deleteUser(index) {
-    const url = `http://localhost:8000/${index}`;
+async function deleteUser(id) {
+    const url = `http://localhost:8000/${id}`;
 
     try {
         const response = await fetch(url, {
@@ -73,7 +73,7 @@ function displayUsers(users) {
     const usersList = document.getElementById('usersList');
     usersList.innerHTML = '';
 
-    users.forEach((user, index) => {
+    users.forEach((user) => {
         const userElement = document.createElement('div');
 
         // Tworzymy element <span> dla informacji o użytkowniku
@@ -85,7 +85,7 @@ function displayUsers(users) {
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Usuń';
         deleteButton.onclick = function() {
-            deleteUser(index);
+            deleteUser(user.id);
         };
 
         // Dodajemy elementy do kontenera użytkownika
