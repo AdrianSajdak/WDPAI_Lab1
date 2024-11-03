@@ -80,7 +80,7 @@ function displayUsers(users) {
         // Tworzymy element <span> dla informacji o użytkowniku
         const userInfo = document.createElement('span');
         userInfo.classList.add('user-info');
-        userInfo.textContent = `${user.first_name} ${user.last_name} - ${user.role}`;
+        userInfo.textContent = `${user.first_name} ${user.last_name}\n${user.role}`;
 
         // Tworzymy przycisk usuwania
         const deleteButton = document.createElement('button');
