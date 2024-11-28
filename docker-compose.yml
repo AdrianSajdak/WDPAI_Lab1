@@ -1,45 +1,67 @@
 version: '3'
-services:
-  nginx:
-    build: ./nginx
-    ports:
-      - "8080:80"  # Expose port 8080 for the web server
-    depends_on:
-      - python_server
-    networks:
-      - webnet
 
-  python_server:
-    build: ./python_server
+services:
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
     ports:
-      - "8000:8000"  # Expose port 8000 for the Python server
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_NAME=mydatabase
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_HOST=postgres
     networks:
-      - webnet
+      - WebApp
 
   postgres:
     image: postgres:13
-    restart: always
     environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-      - ./postgres_init:/docker-entrypoint-initdb.d/
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - webnet
+      - WebApp
 
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:
       - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     networks:
-      - webnet
+      - WebApp
+    
+  ui-app:
+    build: ./ui-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8000/api
+    networks:
+      - WebApp
+
+volumes:
+  postgres_data:
+  pgadmin_data:
 
 networks:
-  webnet:
+  WebApp:

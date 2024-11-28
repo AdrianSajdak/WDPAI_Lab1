@@ -1,5 +1,9 @@
 .idea/
-.venv/
+venv/
 postgres_data/
 .git/
 .DS_Store
+info.txt
+__pycache__/
+haslo.txt
+node_modules/

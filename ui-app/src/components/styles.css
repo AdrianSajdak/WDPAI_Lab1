@@ -1,0 +1,123 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+}
+
+.user-list-container {
+    width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+h2 {
+    text-align: center;
+    font-size: 18px;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form input, form select {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f5f5f5; /* Jasnoszary kolor */
+    color: #333;
+}
+
+form select option {
+    color: #333;
+    background-color: #fff;
+}
+
+form label {
+    font-size: 12px;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+form label .privacy-policy-link {
+    color: #6a5acd;
+    text-decoration: none;
+}
+
+form label .privacy-policy-link:hover {
+    text-decoration: underline;
+}
+
+form button {
+    padding: 10px;
+    font-size: 14px;
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #5a4abc;
+}
+
+.user-list {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.user-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.user-list-item strong {
+    font-size: 14px;
+    color: #333;
+}
+
+.user-list-item p {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ff4500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    color: #ff0000;
+}
+
+form label {
+    font-size: 14px; /* Ustawienie odpowiedniego rozmiaru tekstu */
+    margin-bottom: 5px; /* Odstęp między etykietą a polem input */
+    color: #333; /* Kolor tekstu */
+    text-align: left; /* Wyrównanie tekstu do lewej */
+    display: block; /* Upewnij się, że label zajmuje całą szerokość */
+}
