@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+// `useState` pozwala na zarządzanie stanem w komponencie funkcjonalnym.
+// `useEffect` pozwala na wykonywanie efektów, np. pobieranie danych z API.
 import { FiTrash } from 'react-icons/fi';
-import axios from 'axios';
+import api from '../axiosSetup';
 import './styles.css';
 
 interface User {
@@ -11,13 +13,16 @@ interface User {
 }
 
 const UserList = () => {
+    //Stan do przechowywania wszystkich użytkowników
     const [users, setUsers] = useState<User[]>([]);
+    //Stan do przechowywania nowego użytkownika
     const [newUser, setNewUser] = useState({
         first_name: '',
         last_name: '',
         role: '',
         acceptedPrivacyPolicy: false
     });
+    //Stan do przechowywania błędów walidacji
     const [errors, setErrors] = useState({
         first_name: '',
         last_name: '',
@@ -27,7 +32,7 @@ const UserList = () => {
 
     // Pobieranie użytkowników z backendu
     useEffect(() => {
-        axios.get('http://localhost:8000/api/users/')
+        api.get('/users/')
             .then(response => setUsers(response.data))
             .catch(error => console.error('Błąd podczas pobierania użytkowników:', error));
     }, []);
@@ -72,16 +77,16 @@ const UserList = () => {
             return;
         }
 
-        // Przygotowanie danych do wysłania (bez pola acceptedPrivacyPolicy)
         const userData = {
             first_name: newUser.first_name,
             last_name: newUser.last_name,
             role: newUser.role
         };
 
-        axios.post('http://localhost:8000/api/users/', userData)
+        api.post('/users/', userData)
             .then(response => {
-                setUsers([...users, response.data]);
+                setUsers([...users, response.data]); // Dodanie nowego użytkownika do listy użytkowników
+                // Resetuje formularz nowego użytkownika i formularz błędów walidacji.
                 setNewUser({
                     first_name: '',
                     last_name: '',
@@ -100,7 +105,7 @@ const UserList = () => {
 
     // Usuwanie użytkownika
     const handleDeleteUser = (id: number) => {
-        axios.delete(`http://localhost:8000/api/users/${id}/`)
+        api.delete(`/users/${id}/`)
             .then(() => {
                 setUsers(users.filter(user => user.id !== id));
             })
@@ -109,8 +114,8 @@ const UserList = () => {
 
     return (
         <div className="user-list-container">
-            <h2>Let's level up your brand, together</h2>
             <form onSubmit={(e) => { e.preventDefault(); handleAddUser(); }}>
+                <h2>Let's level up your brand, together</h2>
                 <label htmlFor="first-name">First name</label>
                 <input 
                     type="text" 
@@ -170,7 +175,6 @@ const UserList = () => {
             </ul>
         </div>
     );
-    
 };
 
 export default UserList;

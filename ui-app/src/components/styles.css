@@ -1,123 +1,153 @@
+/* styles.css */
+
+/* Selektor body - styluje całe ciało dokumentu HTML */
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #ffffff;
-    color: #000000;
-    margin: 0;
-    padding: 0;
+    margin: 0;                      /* Usuwa domyślny margines przeglądarki wokół strony */
+    padding: 0;                     /* Usuwa domyślne wypełnienie (padding) wokół strony */
+    font-family: Arial, sans-serif; /* Ustawia krój pisma dla całej strony, najpierw Arial, a jeśli go brak, to sans-serif */
+    background-color: #f8f9fa;    /* Ustawia kolor tła całej strony na jasnoszary (#f8f9fa) */
+    width: 100%;                    /* Szerokość strony na 100% szerokości okna przeglądarki */
+    height: 100%;                   /* Wysokość strony na 100% wysokości okna przeglądarki */
+    box-sizing: border-box;         /* Ustawia model pudełkowy, aby padding i border nie zwiększały rozmiaru elementu */
 }
 
+/* .user-list-container - kontener obejmujący formularz i listę użytkowników */
 .user-list-container {
-    width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    /* Usuwamy position: relative i height: 100vh (to jest komentarz informacyjny, nie wpływa na styl) */
+    display: flex;                    /* Ustawia element jako flex container */
+    flex-direction: column;           /* Ustawia kierunek układu flex: elementy dzieci będą ułożone w kolumnie (jeden pod drugim) */
+    align-items: center;              /* Wyrównuje elementy flexowe w osi poprzecznej (poziomo) do środka */
+    padding: 2rem;                    /* Dodaje wewnętrzny odstęp (padding) 2 rem dookoła kontenera */
+    box-sizing: border-box;           /* Sprawia, że rozmiary elementu uwzględniają padding i border w totalnej szerokości/wysokości */
+    background-color: #f8f9fa;      /* Ustawia tło kontenera na jasnoszary (ten sam kolor co body) */
 }
 
+/* Stylizacja nagłówka h2 */
 h2 {
-    text-align: center;
-    font-size: 18px;
-    color: #333333;
-    margin-bottom: 20px;
+    color: #333333;       /* Kolor tekstu nagłówka na ciemnoszary (#333333) */
+    margin-bottom: 1rem;    /* Dodaje dolny margines 1 rem, tworząc odstęp pod nagłówkiem */
+    text-align: center;     /* Wyrównuje tekst w nagłówku do środka */
 }
 
+/* Styl formularza */
 form {
-    display: flex;
-    flex-direction: column;
+    position: relative;                                    /* Ustawia formularz jako element z pozycją ustaloną */
+    top: 4rem;                                          /* Odległość od góry 2 rem */
+    background: #ffffff;                              /* Tło formularza w kolorze białym */
+    padding: 2rem;                                      /* Wewnętrzny odstęp 2 rem wewnątrz formularza */
+    padding-bottom: 4rem;                               /* Dodatkowy odstęp 2 rem na dole formularza */
+    border-radius: 10px;                                /* Zaokrągla rogi formularza o promieniu 10px */
+    box-shadow: 0 4px 6px rgba(187, 187, 187, 0.1);   /* Dodaje cień pod formularzem, lekko szary i rozmyty */
+    margin-bottom: 1rem;                              /* Dodaje odstęp 0.5 rem pod formularzem, oddzielając go od listy */
+    /* margin: 0 auto; zbędne, gdyż centrowanie uzyskano dzięki align-items:center w .user-list-container */
 }
 
-form input, form select {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #f5f5f5; /* Jasnoszary kolor */
-    color: #333;
-}
-
-form select option {
-    color: #333;
-    background-color: #fff;
-}
-
+/* Styl dla etykiet w formularzu */
 form label {
-    font-size: 12px;
-    margin-bottom: 10px;
-    color: #666;
+    display: block;              /* Sprawia, że etykiety wyświetlają się jako blok (każda w nowej linii) */
+    margin-bottom: 0.5rem;       /* Dodaje odstęp 0.5 rem pod etykietą */
+    color: #555555;            /* Ustawia kolor tekstu etykiety na średnioszary */
 }
 
-form label .privacy-policy-link {
-    color: #6a5acd;
-    text-decoration: none;
+/* Styl dla pól input i select w formularzu */
+form input,
+form select {
+    width: 100%;                 /* Szerokość elementu na 100% dostępnego miejsca */
+    padding: 0.75rem;            /* Wewnętrzny odstęp dla wygodniejszego wprowadzania tekstu */
+    margin-bottom: 1rem;         /* Odstęp 1 rem pod każdym polem */
+    border: 1px solid #ccc;    /* Obramowanie elementu w jasno-szarym kolorze #ccc */
+    border-radius: 5px;          /* Zaokrąglone rogi pól formularza */
+    box-sizing: border-box;      /* Użycie box-sizing, aby padding i border wliczały się w całkowity rozmiar elementu */
+    color: #5c5c5c;            /* Kolor tekstu w polach formularza */
+    background-color: #ffffff; /* Białe tło dla pól formularza */
 }
 
-form label .privacy-policy-link:hover {
+/* Dla input typu checkbox */
+form input[type="checkbox"] {
+    width: auto;          /* Checkbox nie rozciąga się na 100%, ma automatyczną szerokość */
+    margin-right: 0.5rem; /* Dodatkowy odstęp po prawej stronie, aby tekst nie przylegał do checkboxa */
+    accent-color: #007bff; /* Kolor akcentu dla checkboxa (niebieski) */
+}
+
+/* Link do polityki prywatności w formularzu */
+form .privacy-policy-link {
+    color: #007bff;          /* Kolor linku na niebieski (#007bff) */
+    text-decoration: none;     /* Brak podkreślenia tekstu */
+}
+
+/* Na hover nad linkiem: podkreślenie tekstu */
+form .privacy-policy-link:hover {
     text-decoration: underline;
 }
 
+/* Przycisk w formularzu */
 form button {
-    padding: 10px;
-    font-size: 14px;
-    background-color: #6a5acd;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 0.75rem;               /* Wewnętrzny odstęp przycisku */
+    width: 100%;                    /* Przycisk szeroki na 100% dostępnej przestrzeni */
+    background-color: #007bff;    /* Niebieskie tło przycisku */
+    color: white;                 /* Biały kolor tekstu */
+    border: none;                   /* Brak obramowania */
+    border-radius: 5px;             /* Zaokrąglone rogi przycisku */
+    cursor: pointer;                /* Zmienia kursor na wskazujący, sygnalizując interakcję */
 }
 
+/* Po najechaniu kursorem na przycisk */
 form button:hover {
-    background-color: #5a4abc;
+    background-color: #0056b3; /* Ciemniejszy odcień niebieskiego */
 }
 
+/* Styl dla komunikatów błędów w formularzu */
+.error {
+    color: red;             /* Kolor czerwony dla łatwej identyfikacji błędu */
+    font-size: 0.875rem;      /* Nieco mniejszy rozmiar czcionki */
+    margin-top: -0.5rem;      /* Ujemny margines górny, aby zbliżyć komunikat do pola */
+    margin-bottom: 1rem;      /* Odstęp pod komunikatem błędu */
+}
+
+/* Lista użytkowników */
 .user-list {
-    margin-top: 20px;
-    padding: 0;
-    list-style: none;
+    list-style: none;         /* Usuwa wypunktowanie listy */
+    padding: 0;               /* Usuwa wewnętrzne wcięcie listy */
+    padding-top: 4rem;        /* Dodaje wewnętrzny odstęp 4 rem na górze listy */
+    width: 100%;              /* Pełna szerokość kontenera */
+    max-width: 600px;         /* Ogranicza maksymalną szerokość listy do 600px */
+    /* W normalnym przepływie lista będzie wyświetlana pod formularzem */
 }
 
+/* Pojedynczy element na liście użytkowników */
 .user-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 10px;
+    display: flex;                              /* Flex container dla elementu listy, dzięki czemu można rozmieścić zawartość */
+    justify-content: space-between;             /* Rozkłada elementy na boki (tekst z lewej, przycisk z prawej) */
+    align-items: center;                        /* Wyrównuje elementy w pionie do środka */
+    background: #ffffff;                      /* Białe tło dla elementu listy */
+    padding: 1rem;                              /* Wewnętrzne odstępy */
+    margin-bottom: 0.5rem;                        /* Odstęp pomiędzy kolejnymi elementami listy */
+    border-radius: 5px;                         /* Zaokrąglone rogi kart użytkowników */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Lekki cień pod każdym elementem listy */
 }
 
+/* Tekst pogrubiony w elemencie listy (np. imię i nazwisko) */
 .user-list-item strong {
-    font-size: 14px;
-    color: #333;
+    display: block;          /* Wyświetlany jako blok, dzięki czemu zajmuje całą szerokość */
+    color: #333333;        /* Tekst w kolorze ciemnoszarym */
 }
 
+/* Paragraf w elemencie listy (np. rola użytkownika) */
 .user-list-item p {
-    font-size: 12px;
-    color: #666;
-    margin: 0;
+    color: #555555;        /* Średnioszary kolor tekstu */
+    margin: 0;               /* Usunięcie domyślnego marginesu paragrafu */
 }
 
+/* Przycisk usuwania użytkownika */
 .delete-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #ff4500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: none;        /* Brak tła */
+    border: none;            /* Brak obramowania */
+    color: #ff4d4d;        /* Czerwony kolor ikony kosza */
+    cursor: pointer;         /* Kursor typu "wskazujący" przy najechaniu */
+    font-size: 1.25rem;      /* Powiększona czcionka ikony */
 }
 
+/* Efekt hover dla przycisku usuwania */
 .delete-btn:hover {
-    color: #ff0000;
-}
-
-form label {
-    font-size: 14px; /* Ustawienie odpowiedniego rozmiaru tekstu */
-    margin-bottom: 5px; /* Odstęp między etykietą a polem input */
-    color: #333; /* Kolor tekstu */
-    text-align: left; /* Wyrównanie tekstu do lewej */
-    display: block; /* Upewnij się, że label zajmuje całą szerokość */
+    color: #d32f2f;          /* Po najechaniu kolorem ikony jest ciemniejsza czerwień */
 }
